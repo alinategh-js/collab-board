@@ -1,0 +1,10 @@
+.app-wrapper {
+  position: relative;
+}
+
+.app-canvas {
+  background-color: rgba(203, 203, 203, 0.813);
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}

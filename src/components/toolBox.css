@@ -1,0 +1,11 @@
+.toolbox-wrapper {
+    display: flex;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    z-index: 10;
+}
+
+.toolbox-wrapper > button {
+    cursor: pointer;
+}
