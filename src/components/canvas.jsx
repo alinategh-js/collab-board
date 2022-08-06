@@ -2,8 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import activeToolAtom from '../atoms/activeToolAtom';
 import drawingsAtom from '../atoms/drawingsAtom';
-import { toScreenX, toScreenY, toTrueX, toTrueY } from '../utils/canvasHelper';
+import { toScreenX, toScreenY, toTrueX, toTrueY } from '../utils/canvas/canvasHelper';
+import { getFirstElementAtCursor } from '../utils/canvas/elementsHelper';
 import { MOUSEBUTTONS, TOOLS } from '../utils/enums';
+import { isObjectEmpty } from '../utils/util';
 
 let local_drawings = [];
 let current_drawing_object = {};
@@ -90,6 +92,8 @@ const Canvas = ({
         event.preventDefault();
         cursorX = event.pageX
         cursorY = event.pageY
+        const canvas = canvasRef.current
+        const context = canvas.getContext('2d')
 
         const trueX = toTrueX(cursorX, offsetX)
         const trueY = toTrueY(cursorY, offsetY)
@@ -126,8 +130,16 @@ const Canvas = ({
             // pan the canvas
             offsetX += (cursorX - prevCursorX);
             offsetY += (cursorY - prevCursorY);
-            console.log(offsetX, offsetY)
+            //console.log(offsetX, offsetY)
             redrawCanvas();
+        }
+
+        const elementAtCursor = getFirstElementAtCursor(trueX, trueY, local_drawings)
+        if (elementAtCursor) {
+            canvas.style.cursor = "move"
+        }
+        else {
+            canvas.style.cursor = "default"
         }
 
         prevCursorX = cursorX;
@@ -146,7 +158,7 @@ const Canvas = ({
                 isFreeDrawing = true;
                 canvas.style.cursor = 'crosshair';
                 current_drawing_object = {
-                    type: TOOLS[0].name,
+                    type: "Pen",
                     points: []
                 }
             }
@@ -187,8 +199,10 @@ const Canvas = ({
         leftMouseDown = false
         middleMouseDown = false
         isFreeDrawing = false
-        local_drawings.push(current_drawing_object);
-        setDrawings([...local_drawings])
+        if (!isObjectEmpty(current_drawing_object)) {
+            local_drawings.push(current_drawing_object);
+            setDrawings([...local_drawings])
+        }
     }
 
     useEffect(() => {

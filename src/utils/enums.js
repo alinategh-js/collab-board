@@ -1,6 +1,9 @@
 
 export const TOOLS = [
     {
+        name: 'Select',
+    },
+    {
         name: 'Pen',
     },
     {
