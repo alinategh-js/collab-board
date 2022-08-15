@@ -29,14 +29,14 @@ let dy = 0.5
 const Canvas = ({
 
 }) => {
-    const canvasRef = useRef(null)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
 
     const activeTool = useRecoilValue(activeToolAtom)
     const [drawings, setDrawings] = useRecoilState(drawingsAtom)
 
     const redrawCanvas = () => {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext("2d");
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const context = canvas.getContext("2d") as CanvasRenderingContext2D;
         // set the canvas to the size of the window
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;

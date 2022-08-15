@@ -4,15 +4,14 @@ import { useRecoilState } from 'recoil'
 import activeToolAtom from '../atoms/activeToolAtom';
 import { TOOLS } from '../utils/enums';
 
-const test = "test"
-
 const ToolBox = ({
 
 }) => {
     const [activeTool, setActiveTool] = useRecoilState(activeToolAtom)
 
-    const handleChangeTool = (event) => {
-        const value = event.target.value;
+    const handleChangeTool = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const target = event.target as HTMLButtonElement;
+        const value = target.value;
         setActiveTool(value)
     }
 

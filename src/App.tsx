@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React from "react";
 import "./App.css"
 import Canvas from './components/canvas';
 import ToolBox from './components/toolBox';
