@@ -1,4 +1,4 @@
-const errorMargin = 10; // the margin of error of the cursor position for determining a hit
+const ERROR_MARGIN = 10; // the margin of error of the cursor position for determining a hit
 
 export const getFirstElementAtCursor = (x, y, elements) => {
     let isHittingElement = false;
@@ -43,7 +43,7 @@ function checkInRange(x, y, xMin, xMax, yMin, yMax) {
     return (x <= xMax && x >= xMin && y <= yMax && y >= yMin);
 }
 
-function isCursorOnHorizontalLine(x, y, lineX0, lineX1, lineY, error = errorMargin) {
+function isCursorOnHorizontalLine(x, y, lineX0, lineX1, lineY, error = ERROR_MARGIN) {
     const yMax = lineY + error;
     const yMin = lineY - error;
     const xMin = Math.min(lineX0, lineX1);
@@ -52,7 +52,7 @@ function isCursorOnHorizontalLine(x, y, lineX0, lineX1, lineY, error = errorMarg
     return checkInRange(x, y, xMin, xMax, yMin, yMax);
 }
 
-function isCursorOnVerticalLine(x, y, lineY0, lineY1, lineX, error = errorMargin) {
+function isCursorOnVerticalLine(x, y, lineY0, lineY1, lineX, error = ERROR_MARGIN) {
     const yMax = Math.max(lineY0, lineY1);
     const yMin = Math.min(lineY0, lineY1);
     const xMin = lineX - error;
