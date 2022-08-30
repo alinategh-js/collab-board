@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import "./toolBox.css"
 import { useRecoilState } from 'recoil'
 import activeToolAtom from '../atoms/activeToolAtom';
-import { TOOLS } from '../utils/enums';
+import { TOOLS } from '../config/enums';
 
 const ToolBox = ({
 

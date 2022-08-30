@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { TOOLS } from "../utils/enums";
+import { TOOLS } from "../config/enums";
 
 const activeToolAtom = atom({
     key: 'activeTool', 

@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import activeToolAtom from '../atoms/activeToolAtom';
 import drawingsAtom from '../atoms/drawingsAtom';
+import { MOUSEBUTTONS } from '../config/enums';
 import { toScreenX, toScreenY, toTrueX, toTrueY } from '../utils/canvas/canvasHelper';
 import { getFirstElementAtCursor } from '../utils/canvas/elementsHelper';
-import { MOUSEBUTTONS, TOOLS } from '../utils/enums';
 import { isObjectEmpty } from '../utils/util';
 
 let local_drawings = [];
