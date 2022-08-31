@@ -1,6 +1,10 @@
 import { TOOLS } from './enums';
 import { Strings } from './strings';
 
+export type Tool = {
+    name: string
+}
+
 type _ExcludedTools = typeof Strings.Tools.Select;
 
 type _ElementType = Exclude<typeof TOOLS[number]["name"], _ExcludedTools>;

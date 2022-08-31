@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import "./toolBox.css"
 import { useRecoilState } from 'recoil'
 import activeToolAtom from '../atoms/activeToolAtom';
-import { TOOLS } from '../config/enums';
+import { getToolByName, TOOLS } from '../config/enums';
 
 const ToolBox = ({
 
@@ -12,7 +12,8 @@ const ToolBox = ({
     const handleChangeTool = (event: React.MouseEvent<HTMLButtonElement>) => {
         const target = event.target as HTMLButtonElement;
         const value = target.value;
-        setActiveTool(value)
+        const tool = getToolByName(value)
+        setActiveTool(tool)
     }
 
     useEffect(() => {
@@ -27,7 +28,7 @@ const ToolBox = ({
                         value={tool.name}
                         key={index}
                         style={{
-                            backgroundColor: activeTool == tool.name ? 'green' : ''
+                            backgroundColor: activeTool.name == tool.name ? 'green' : ''
                         }}
                         onClick={handleChangeTool}
                     >

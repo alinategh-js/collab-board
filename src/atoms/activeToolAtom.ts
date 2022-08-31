@@ -1,9 +1,10 @@
 import { atom } from "recoil";
 import { TOOLS } from "../config/enums";
+import { Tool } from "../config/types";
 
-const activeToolAtom = atom({
+const activeToolAtom = atom<Tool>({
     key: 'activeTool', 
-    default: TOOLS[0].name, // default value (aka initial value)
+    default: TOOLS[0], // default value (aka initial value)
 });
 
 export default activeToolAtom;
