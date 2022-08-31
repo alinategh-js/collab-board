@@ -6,14 +6,16 @@ import { MOUSEBUTTONS } from '../config/enums';
 import { toScreenX, toScreenY, toTrueX, toTrueY } from '../utils/canvas/canvasHelper';
 import { getFirstElementAtCursor } from '../utils/canvas/elementsHelper';
 import { isObjectEmpty } from '../utils/util';
+import { Element, PenElement, RectangleElement } from '../config/types';
+import { Strings } from '../config/strings';
 
-let local_drawings = [];
-let current_drawing_object = {};
+let local_drawings: Element[] = [];
+let current_drawing_object: Element;
 
-let cursorX;
-let cursorY;
-let prevCursorX;
-let prevCursorY;
+let cursorX: number;
+let cursorY: number;
+let prevCursorX: number;
+let prevCursorY: number;
 
 let offsetX = 0;
 let offsetY = 0;
@@ -22,9 +24,6 @@ let leftMouseDown = false;
 let middleMouseDown = false;
 
 let isFreeDrawing = false;
-
-let dx = 0.5
-let dy = 0.5
 
 const Canvas = ({
 
@@ -44,24 +43,31 @@ const Canvas = ({
         context.fillStyle = '#fff';
 
         for (let i = 0; i < local_drawings.length; i++) {
-            const element = local_drawings[i];
-            if (element.type == "Pen") {
+            let element = local_drawings[i];
+            if (element.type == Strings.Tools.Pen) {
+                element = element as PenElement;
                 for (let j = 0; j < element.points?.length; j++) {
                     const line = element.points[j];
                     drawLine(toScreenX(line.x0, offsetX), toScreenY(line.y0, offsetY),
                         toScreenX(line.x1, offsetX), toScreenY(line.y1, offsetY));
                 }
             }
-            if (element.type == "Rectangle") {
+            if (element.type == Strings.Tools.Rectangle) {
+                element = element as RectangleElement;
                 drawRectangle(toScreenX(element.startPoint.x, offsetX), toScreenY(element.startPoint.y, offsetY),
                     toScreenX(element.endPoint.x, offsetX), toScreenY(element.endPoint.y, offsetY));
             }
         }
     }
 
-    const drawLine = (x0, y0, x1, y1) => {
-        const canvas = canvasRef.current
-        const context = canvas.getContext('2d')
+    const drawLine = (
+        x0: number,
+        y0: number,
+        x1: number,
+        y1: number
+    ) => {
+        const canvas = canvasRef.current as HTMLCanvasElement
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D
 
         context.beginPath();
         context.moveTo(x0, y0);
@@ -72,9 +78,14 @@ const Canvas = ({
         context.stroke();
     }
 
-    const drawRectangle = (x0, y0, x1, y1) => {
-        const canvas = canvasRef.current
-        const context = canvas.getContext('2d')
+    const drawRectangle = (
+        x0: number,
+        y0: number,
+        x1: number,
+        y1: number
+    ) => {
+        const canvas = canvasRef.current as HTMLCanvasElement
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D
 
         context.beginPath();
         context.moveTo(x0, y0);
@@ -88,12 +99,12 @@ const Canvas = ({
         context.stroke();
     }
 
-    const handleMouseMove = (event) => {
+    const handleMouseMove = (event: React.MouseEvent) => {
         event.preventDefault();
         cursorX = event.pageX
         cursorY = event.pageY
-        const canvas = canvasRef.current
-        const context = canvas.getContext('2d')
+        const canvas = canvasRef.current as HTMLCanvasElement
+        //const context = canvas.getContext('2d') as CanvasRenderingContext2D
 
         const trueX = toTrueX(cursorX, offsetX)
         const trueY = toTrueY(cursorY, offsetY)
@@ -101,6 +112,7 @@ const Canvas = ({
         const prevTrueY = toTrueY(prevCursorY, offsetY)
         if (leftMouseDown) {
             if (isFreeDrawing) {
+                current_drawing_object = current_drawing_object as PenElement
                 current_drawing_object?.points?.push({
                     x0: prevTrueX,
                     y0: prevTrueY,
@@ -111,7 +123,8 @@ const Canvas = ({
                 drawLine(prevCursorX, prevCursorY, cursorX, cursorY);
             }
 
-            if (activeTool == "Rectangle") {
+            if (activeTool.name == Strings.Tools.Rectangle) {
+                current_drawing_object = current_drawing_object as RectangleElement
                 current_drawing_object.endPoint = {
                     x: trueX,
                     y: trueY
@@ -146,31 +159,36 @@ const Canvas = ({
         prevCursorY = cursorY;
     }
 
-    const handleMouseDown = (event) => {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext("2d");
+    const handleMouseDown = (event: React.MouseEvent) => {
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        //const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 
         // left mouse button
         if (event.button == MOUSEBUTTONS.LMB) {
             leftMouseDown = true;
             middleMouseDown = false;
-            if (activeTool == "Pen") {
+            if (activeTool.name == Strings.Tools.Pen) {
+                current_drawing_object = current_drawing_object as PenElement
                 isFreeDrawing = true;
                 canvas.style.cursor = 'crosshair';
+                // TODO: see if there is a better way to generate this object
                 current_drawing_object = {
-                    type: "Pen",
+                    type: Strings.Tools.Pen,
                     points: []
                 }
             }
 
-            else if (activeTool == "Rectangle") {
+            else if (activeTool.name == Strings.Tools.Rectangle) {
+                current_drawing_object = current_drawing_object as RectangleElement
+
                 cursorX = event.pageX
                 cursorY = event.pageY
 
                 const trueX = toTrueX(cursorX, offsetX)
                 const trueY = toTrueY(cursorY, offsetY)
+                // TODO: see if there is a better way to generate this object
                 current_drawing_object = {
-                    type: "Rectangle",
+                    type: Strings.Tools.Rectangle,
                     startPoint: { x: trueX, y: trueY },
                     endPoint: { x: trueX, y: trueY }
                 }
@@ -191,8 +209,8 @@ const Canvas = ({
     }
 
     const handleMouseUp = () => {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext("2d");
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 
         canvas.style.cursor = ''
 
