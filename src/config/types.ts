@@ -33,8 +33,7 @@ export type RectangleElement = _BaseElement & {
 
 export type PenElement = _BaseElement & {
     type: typeof Strings.Tools.Pen,
-    // TODO: change each point to a point instead of a line
-    points: Line[]
+    points: Point[]
 };
 
 export type Element = 

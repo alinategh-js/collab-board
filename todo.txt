@@ -1,6 +1,0 @@
-1- how to have pannable canvas area ( draw something on the canvas and see if you can pan around ) - Done
-2- draw a rectangle - Done
-3- be able to select elements and move them
-
-Luxuries:
-3- smooth out hand drawn lines just like the way miro does it

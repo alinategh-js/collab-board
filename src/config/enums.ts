@@ -11,7 +11,7 @@ export const TOOLS = [
     {
         name: Strings.Tools.Rectangle
     }
-] as Tool[];
+] as const;
 
 export const getToolByName = (name: string): Tool => {
     const tool = TOOLS.find(x => x.name == name)

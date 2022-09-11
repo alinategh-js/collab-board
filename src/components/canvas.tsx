@@ -20,8 +20,11 @@ let prevCursorY: number;
 let offsetX = 0;
 let offsetY = 0;
 
+let scale = 1;
+
 let leftMouseDown = false;
 let middleMouseDown = false;
+let isHoldingSpace = false;
 
 let isFreeDrawing = false;
 
@@ -46,16 +49,17 @@ const Canvas = ({
             let element = local_drawings[i];
             if (element.type == Strings.Tools.Pen) {
                 element = element as PenElement;
-                for (let j = 0; j < element.points?.length; j++) {
-                    const line = element.points[j];
-                    drawLine(toScreenX(line.x0, offsetX), toScreenY(line.y0, offsetY),
-                        toScreenX(line.x1, offsetX), toScreenY(line.y1, offsetY));
+                for (let j = 0; j < element.points?.length - 1; j++) {
+                    const currentPoint = element.points[j];
+                    const nextPoint = element.points[j + 1];
+                    drawLine(toScreenX(currentPoint.x, offsetX, scale), toScreenY(currentPoint.y, offsetY, scale),
+                        toScreenX(nextPoint.x, offsetX, scale), toScreenY(nextPoint.y, offsetY, scale));
                 }
             }
             if (element.type == Strings.Tools.Rectangle) {
                 element = element as RectangleElement;
-                drawRectangle(toScreenX(element.startPoint.x, offsetX), toScreenY(element.startPoint.y, offsetY),
-                    toScreenX(element.endPoint.x, offsetX), toScreenY(element.endPoint.y, offsetY));
+                drawRectangle(toScreenX(element.startPoint.x, offsetX, scale), toScreenY(element.startPoint.y, offsetY, scale),
+                    toScreenX(element.endPoint.x, offsetX, scale), toScreenY(element.endPoint.y, offsetY, scale));
             }
         }
     }
@@ -106,24 +110,23 @@ const Canvas = ({
         const canvas = canvasRef.current as HTMLCanvasElement
         //const context = canvas.getContext('2d') as CanvasRenderingContext2D
 
-        const trueX = toTrueX(cursorX, offsetX)
-        const trueY = toTrueY(cursorY, offsetY)
-        const prevTrueX = toTrueX(prevCursorX, offsetX)
-        const prevTrueY = toTrueY(prevCursorY, offsetY)
+        const trueX = toTrueX(cursorX, offsetX, scale)
+        const trueY = toTrueY(cursorY, offsetY, scale)
+        const prevTrueX = toTrueX(prevCursorX, offsetX, scale)
+        const prevTrueY = toTrueY(prevCursorY, offsetY, scale)
         if (leftMouseDown) {
             if (isFreeDrawing) {
                 current_drawing_object = current_drawing_object as PenElement
                 current_drawing_object?.points?.push({
-                    x0: prevTrueX,
-                    y0: prevTrueY,
-                    x1: trueX,
-                    y1: trueY
+                    x: trueX,
+                    y: trueY
                 })
                 // draw a line
                 drawLine(prevCursorX, prevCursorY, cursorX, cursorY);
             }
 
             if (activeTool.name == Strings.Tools.Rectangle) {
+                debugger;
                 current_drawing_object = current_drawing_object as RectangleElement
                 current_drawing_object.endPoint = {
                     x: trueX,
@@ -132,8 +135,8 @@ const Canvas = ({
                 // redraw canvas to get rid of last rectangle
                 redrawCanvas();
                 // render new rectangle
-                const screenStartX = toScreenX(current_drawing_object?.startPoint?.x, offsetX);
-                const screenStartY = toScreenY(current_drawing_object?.startPoint?.y, offsetY);
+                const screenStartX = toScreenX(current_drawing_object?.startPoint?.x, offsetX, scale);
+                const screenStartY = toScreenY(current_drawing_object?.startPoint?.y, offsetY, scale);
                 drawRectangle(screenStartX, screenStartY,
                     cursorX, cursorY);
             }
@@ -184,8 +187,8 @@ const Canvas = ({
                 cursorX = event.pageX
                 cursorY = event.pageY
 
-                const trueX = toTrueX(cursorX, offsetX)
-                const trueY = toTrueY(cursorY, offsetY)
+                const trueX = toTrueX(cursorX, offsetX, scale)
+                const trueY = toTrueY(cursorY, offsetY, scale)
                 // TODO: see if there is a better way to generate this object
                 current_drawing_object = {
                     type: Strings.Tools.Rectangle,
@@ -223,6 +226,23 @@ const Canvas = ({
         }
     }
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+        debugger;
+        if(event.repeat) return;
+        if(event.code == "Space"){
+            console.log("space key pressed")
+        }
+    }
+
+    const handleWheel = (event: React.WheelEvent) => {
+        // TODO: make zooming "smooth"
+        // TODO: make zooming focus on where the mouse is
+        if (!middleMouseDown) {
+            scale += -event.deltaY * 0.0005
+            redrawCanvas();
+        }
+    }
+
     useEffect(() => {
         local_drawings = [...drawings]
         redrawCanvas()
@@ -232,6 +252,7 @@ const Canvas = ({
         console.log('rendering canvas')
         const canvasDOMWidth = window.innerWidth;
         const canvasDOMHeight = window.innerHeight;
+        window.addEventListener('keydown', handleKeyDown, {passive: true});
         return (
             <canvas
                 className='app-canvas'
@@ -241,6 +262,8 @@ const Canvas = ({
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
+                onWheel={handleWheel}
+                //onKeyDown={handleKeyDown}
             />
         );
     }
