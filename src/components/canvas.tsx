@@ -3,7 +3,7 @@ import { useRecoilValue, useRecoilState } from 'recoil';
 import activeToolAtom from '../atoms/activeToolAtom';
 import drawingsAtom from '../atoms/drawingsAtom';
 import { MOUSEBUTTONS } from '../config/enums';
-import { toScreenX, toScreenY, toTrueX, toTrueY } from '../utils/canvas/canvasHelper';
+import { toScreenX, toScreenY, toTrueX, toTrueY, trueHeight, trueWidth } from '../utils/canvas/canvasHelper';
 import { getFirstElementAtCursor } from '../utils/canvas/elementsHelper';
 import { isObjectEmpty } from '../utils/util';
 import { Element, PenElement, RectangleElement } from '../config/types';
@@ -21,6 +21,8 @@ let offsetX = 0;
 let offsetY = 0;
 
 let scale = 1;
+const MAX_SCALE = 3;
+const MIN_SCALE = 0.5;
 
 let leftMouseDown = false;
 let middleMouseDown = false;
@@ -126,7 +128,6 @@ const Canvas = ({
             }
 
             if (activeTool.name == Strings.Tools.Rectangle) {
-                debugger;
                 current_drawing_object = current_drawing_object as RectangleElement
                 current_drawing_object.endPoint = {
                     x: trueX,
@@ -150,12 +151,14 @@ const Canvas = ({
             redrawCanvas();
         }
 
-        const elementAtCursor = getFirstElementAtCursor(trueX, trueY, local_drawings)
-        if (elementAtCursor) {
-            canvas.style.cursor = "move"
-        }
-        else {
-            canvas.style.cursor = "default"
+        if (activeTool.name == Strings.Tools.Select) {
+            const elementAtCursor = getFirstElementAtCursor(trueX, trueY, local_drawings)
+            if (elementAtCursor) {
+                canvas.style.cursor = "move"
+            }
+            else {
+                canvas.style.cursor = "default"
+            }
         }
 
         prevCursorX = cursorX;
@@ -227,18 +230,33 @@ const Canvas = ({
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-        debugger;
-        if(event.repeat) return;
-        if(event.code == "Space"){
+        if (event.repeat) return;
+        if (event.code == "Space") {
             console.log("space key pressed")
         }
     }
 
     const handleWheel = (event: React.WheelEvent) => {
-        // TODO: make zooming "smooth"
-        // TODO: make zooming focus on where the mouse is
+        const canvas = canvasRef.current as HTMLCanvasElement;
         if (!middleMouseDown) {
-            scale += -event.deltaY * 0.0005
+            const deltaY = event.deltaY;
+            const scaleAmount = -deltaY / 500;
+            scale = scale * (1 + scaleAmount);
+
+            // zoom the page based on where the cursor is
+            var distX = event.pageX / canvas.clientWidth;
+            var distY = event.pageY / canvas.clientHeight;
+
+            // calculate how much we need to zoom
+            const unitsZoomedX = trueWidth(canvas, scale) * scaleAmount;
+            const unitsZoomedY = trueHeight(canvas, scale) * scaleAmount;
+
+            const unitsAddLeft = unitsZoomedX * distX;
+            const unitsAddTop = unitsZoomedY * distY;
+
+            offsetX -= unitsAddLeft;
+            offsetY -= unitsAddTop;
+
             redrawCanvas();
         }
     }
@@ -252,7 +270,7 @@ const Canvas = ({
         console.log('rendering canvas')
         const canvasDOMWidth = window.innerWidth;
         const canvasDOMHeight = window.innerHeight;
-        window.addEventListener('keydown', handleKeyDown, {passive: true});
+        window.addEventListener('keydown', handleKeyDown, { passive: true });
         return (
             <canvas
                 className='app-canvas'
@@ -263,7 +281,7 @@ const Canvas = ({
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 onWheel={handleWheel}
-                //onKeyDown={handleKeyDown}
+            //onKeyDown={handleKeyDown}
             />
         );
     }
