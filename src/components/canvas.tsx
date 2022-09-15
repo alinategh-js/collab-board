@@ -19,6 +19,8 @@ let prevCursorY: number;
 
 let offsetX = 0;
 let offsetY = 0;
+const MAX_OFFSET_X = 2000;
+const MAX_OFFSET_Y = 1000;
 
 let scale = 1;
 const MAX_SCALE = 3;
@@ -145,8 +147,12 @@ const Canvas = ({
 
         if (middleMouseDown) {
             // pan the canvas
-            offsetX += (cursorX - prevCursorX);
-            offsetY += (cursorY - prevCursorY);
+            const newOffsetX = offsetX + (cursorX - prevCursorX);
+            const newOffsetY = offsetY + (cursorY - prevCursorY);
+            if (Math.abs(newOffsetX) <= MAX_OFFSET_X)
+                offsetX = newOffsetX;
+            if (Math.abs(newOffsetY) <= MAX_OFFSET_Y)
+                offsetY = newOffsetY;
             //console.log(offsetX, offsetY)
             redrawCanvas();
         }
@@ -241,7 +247,10 @@ const Canvas = ({
         if (!middleMouseDown) {
             const deltaY = event.deltaY;
             const scaleAmount = -deltaY / 500;
-            scale = scale * (1 + scaleAmount);
+            const newScale = scale * (1 + scaleAmount)
+            if (newScale > MAX_SCALE || newScale < MIN_SCALE)
+                return
+            scale = newScale;
 
             // zoom the page based on where the cursor is
             var distX = event.pageX / canvas.clientWidth;
