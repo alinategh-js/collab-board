@@ -10,6 +10,7 @@ type _ExcludedTools = typeof Strings.Tools.Select;
 type _ElementType = Exclude<typeof TOOLS[number]["name"], _ExcludedTools>;
 
 type _BaseElement = Readonly<{
+    id: string,
     type: _ElementType,
 }>;
 
@@ -36,6 +37,6 @@ export type PenElement = _BaseElement & {
     points: Point[]
 };
 
-export type Element = 
-RectangleElement | 
-PenElement;
+export type Element =
+    RectangleElement |
+    PenElement;

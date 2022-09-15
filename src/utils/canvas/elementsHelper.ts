@@ -1,15 +1,18 @@
+import { Strings } from "../../config/strings";
+import { Element, RectangleElement } from "../../config/types";
+
 const ERROR_MARGIN = 10; // the margin of error of the cursor position for determining a hit
 
-export const getFirstElementAtCursor = (x, y, elements) => {
+export const getFirstElementAtCursor = (x: number, y: number, elements: Element[]) => {
     let isHittingElement = false;
     let foundElement;
     for (let element of elements) {
         const elementName = element.type;
         switch (elementName) {
-            case "Rectangle":
+            case Strings.Tools.Rectangle:
                 isHittingElement = isCursorHittingRectangleElement(x, y, element)
                 break;
-            case "Pen":
+            case Strings.Tools.Pen:
                 isHittingElement = isCursorHittingPenElement(x, y, element)
                 break;
 
@@ -26,11 +29,11 @@ export const getFirstElementAtCursor = (x, y, elements) => {
     return foundElement;
 }
 
-const isCursorHittingPenElement = (x, y, element) => {
+const isCursorHittingPenElement = (x: number, y: number, element: Element) => {
     return false;
 }
 
-const isCursorHittingRectangleElement = (x, y, element) => {
+const isCursorHittingRectangleElement = (x: number, y: number, element: RectangleElement) => {
     const startPoint = element.startPoint;
     const endPoint = element.endPoint;
     return (isCursorOnHorizontalLine(x, y, startPoint.x, endPoint.x, startPoint.y)
@@ -39,11 +42,11 @@ const isCursorHittingRectangleElement = (x, y, element) => {
         || isCursorOnVerticalLine(x, y, endPoint.y, startPoint.y, endPoint.x))
 }
 
-function checkInRange(x, y, xMin, xMax, yMin, yMax) {
+function checkInRange(x: number, y: number, xMin: number, xMax: number, yMin: number, yMax: number) {
     return (x <= xMax && x >= xMin && y <= yMax && y >= yMin);
 }
 
-function isCursorOnHorizontalLine(x, y, lineX0, lineX1, lineY, error = ERROR_MARGIN) {
+function isCursorOnHorizontalLine(x: number, y: number, lineX0: number, lineX1: number, lineY: number, error = ERROR_MARGIN) {
     const yMax = lineY + error;
     const yMin = lineY - error;
     const xMin = Math.min(lineX0, lineX1);
@@ -52,7 +55,7 @@ function isCursorOnHorizontalLine(x, y, lineX0, lineX1, lineY, error = ERROR_MAR
     return checkInRange(x, y, xMin, xMax, yMin, yMax);
 }
 
-function isCursorOnVerticalLine(x, y, lineY0, lineY1, lineX, error = ERROR_MARGIN) {
+function isCursorOnVerticalLine(x: number, y: number, lineY0: number, lineY1: number, lineX: number, error = ERROR_MARGIN) {
     const yMax = Math.max(lineY0, lineY1);
     const yMin = Math.min(lineY0, lineY1);
     const xMin = lineX - error;

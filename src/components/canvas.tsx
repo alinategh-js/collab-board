@@ -5,12 +5,14 @@ import drawingsAtom from '../atoms/drawingsAtom';
 import { MOUSEBUTTONS } from '../config/enums';
 import { toScreenX, toScreenY, toTrueX, toTrueY, trueHeight, trueWidth } from '../utils/canvas/canvasHelper';
 import { getFirstElementAtCursor } from '../utils/canvas/elementsHelper';
-import { isObjectEmpty } from '../utils/util';
+import { isObjectEmptyOrNull } from '../utils/util';
 import { Element, PenElement, RectangleElement } from '../config/types';
 import { Strings } from '../config/strings';
+import { dragElement } from '../utils/canvas/dragHelper';
+import { v4 as uuidv4, V4Options } from 'uuid';
 
 let local_drawings: Element[] = [];
-let current_drawing_object: Element;
+let current_drawing_object: Element | null;
 
 let cursorX: number;
 let cursorY: number;
@@ -19,7 +21,7 @@ let prevCursorY: number;
 
 let offsetX = 0;
 let offsetY = 0;
-const MAX_OFFSET_X = 2000;
+const MAX_OFFSET_X = 1000;
 const MAX_OFFSET_Y = 1000;
 
 let scale = 1;
@@ -31,6 +33,8 @@ let middleMouseDown = false;
 let isHoldingSpace = false;
 
 let isFreeDrawing = false;
+
+let elementAtCursor: Element | null;
 
 const Canvas = ({
 
@@ -129,7 +133,7 @@ const Canvas = ({
                 drawLine(prevCursorX, prevCursorY, cursorX, cursorY);
             }
 
-            if (activeTool.name == Strings.Tools.Rectangle) {
+            else if (activeTool.name == Strings.Tools.Rectangle) {
                 current_drawing_object = current_drawing_object as RectangleElement
                 current_drawing_object.endPoint = {
                     x: trueX,
@@ -143,9 +147,23 @@ const Canvas = ({
                 drawRectangle(screenStartX, screenStartY,
                     cursorX, cursorY);
             }
+
+            else if (activeTool.name == Strings.Tools.Select) {
+                if (elementAtCursor) {
+                    const diffX = cursorX - prevCursorX;
+                    const diffY = cursorY - prevCursorY;
+                    elementAtCursor = dragElement(elementAtCursor, diffX, diffY);
+                    let targetElementIndex = local_drawings
+                        .findIndex(x => x.id == elementAtCursor?.id)
+                    if (targetElementIndex >= 0) {
+                        local_drawings[targetElementIndex] = { ...elementAtCursor }
+                        redrawCanvas();
+                    }
+                }
+            }
         }
 
-        if (middleMouseDown) {
+        else if (middleMouseDown) {
             // pan the canvas
             const newOffsetX = offsetX + (cursorX - prevCursorX);
             const newOffsetY = offsetY + (cursorY - prevCursorY);
@@ -157,12 +175,14 @@ const Canvas = ({
             redrawCanvas();
         }
 
-        if (activeTool.name == Strings.Tools.Select) {
-            const elementAtCursor = getFirstElementAtCursor(trueX, trueY, local_drawings)
-            if (elementAtCursor) {
+        else if (activeTool.name == Strings.Tools.Select) {
+            const tempElement = getFirstElementAtCursor(trueX, trueY, local_drawings)
+            if (tempElement) {
+                elementAtCursor = tempElement;
                 canvas.style.cursor = "move"
             }
             else {
+                elementAtCursor = null;
                 canvas.style.cursor = "default"
             }
         }
@@ -185,6 +205,7 @@ const Canvas = ({
                 canvas.style.cursor = 'crosshair';
                 // TODO: see if there is a better way to generate this object
                 current_drawing_object = {
+                    id: uuidv4(),
                     type: Strings.Tools.Pen,
                     points: []
                 }
@@ -200,6 +221,7 @@ const Canvas = ({
                 const trueY = toTrueY(cursorY, offsetY, scale)
                 // TODO: see if there is a better way to generate this object
                 current_drawing_object = {
+                    id: uuidv4(),
                     type: Strings.Tools.Rectangle,
                     startPoint: { x: trueX, y: trueY },
                     endPoint: { x: trueX, y: trueY }
@@ -229,8 +251,13 @@ const Canvas = ({
         leftMouseDown = false
         middleMouseDown = false
         isFreeDrawing = false
-        if (!isObjectEmpty(current_drawing_object)) {
-            local_drawings.push(current_drawing_object);
+        if (!isObjectEmptyOrNull(current_drawing_object)) {
+            local_drawings.push(current_drawing_object as Element);
+            current_drawing_object = null;
+            setDrawings([...local_drawings])
+        }
+
+        if (activeTool.name == Strings.Tools.Select) {
             setDrawings([...local_drawings])
         }
     }
