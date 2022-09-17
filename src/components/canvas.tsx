@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue, useRecoilState } from 'recoil';
 import activeToolAtom from '../atoms/activeToolAtom';
 import drawingsAtom from '../atoms/drawingsAtom';
@@ -41,12 +41,16 @@ const Canvas = ({
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
+    const [context, setContext] = useState<CanvasRenderingContext2D | null>(null)
     const activeTool = useRecoilValue(activeToolAtom)
     const [drawings, setDrawings] = useRecoilState(drawingsAtom)
 
     const redrawCanvas = () => {
+        if (!context)
+            return;
+
         const canvas = canvasRef.current as HTMLCanvasElement;
-        const context = canvas.getContext("2d") as CanvasRenderingContext2D;
+
         // set the canvas to the size of the window
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -78,8 +82,8 @@ const Canvas = ({
         x1: number,
         y1: number
     ) => {
-        const canvas = canvasRef.current as HTMLCanvasElement
-        const context = canvas.getContext('2d') as CanvasRenderingContext2D
+        if (!context)
+            return;
 
         context.beginPath();
         context.moveTo(x0, y0);
@@ -96,8 +100,8 @@ const Canvas = ({
         x1: number,
         y1: number
     ) => {
-        const canvas = canvasRef.current as HTMLCanvasElement
-        const context = canvas.getContext('2d') as CanvasRenderingContext2D
+        if (!context)
+            return;
 
         context.beginPath();
         context.moveTo(x0, y0);
@@ -116,7 +120,6 @@ const Canvas = ({
         cursorX = event.pageX
         cursorY = event.pageY
         const canvas = canvasRef.current as HTMLCanvasElement
-        //const context = canvas.getContext('2d') as CanvasRenderingContext2D
 
         const trueX = toTrueX(cursorX, offsetX, scale)
         const trueY = toTrueY(cursorY, offsetY, scale)
@@ -172,6 +175,7 @@ const Canvas = ({
             if (Math.abs(newOffsetY) <= MAX_OFFSET_Y)
                 offsetY = newOffsetY;
             //console.log(offsetX, offsetY)
+
             redrawCanvas();
         }
 
@@ -193,7 +197,6 @@ const Canvas = ({
 
     const handleMouseDown = (event: React.MouseEvent) => {
         const canvas = canvasRef.current as HTMLCanvasElement;
-        //const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 
         // left mouse button
         if (event.button == MOUSEBUTTONS.LMB) {
@@ -244,7 +247,6 @@ const Canvas = ({
 
     const handleMouseUp = () => {
         const canvas = canvasRef.current as HTMLCanvasElement;
-        const context = canvas.getContext("2d") as CanvasRenderingContext2D;
 
         canvas.style.cursor = ''
 
@@ -271,7 +273,8 @@ const Canvas = ({
 
     const handleWheel = (event: React.WheelEvent) => {
         const canvas = canvasRef.current as HTMLCanvasElement;
-        if (!middleMouseDown) {
+
+        if (!middleMouseDown && context) {
             const deltaY = event.deltaY;
             const scaleAmount = -deltaY / 500;
             const newScale = scale * (1 + scaleAmount)
@@ -298,9 +301,15 @@ const Canvas = ({
     }
 
     useEffect(() => {
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext("2d");
+        setContext(ctx);
         local_drawings = [...drawings]
-        redrawCanvas()
     }, [])
+
+    useEffect(() => {
+        redrawCanvas();
+    }, [context])
 
     const renderCanvas = () => {
         console.log('rendering canvas')
