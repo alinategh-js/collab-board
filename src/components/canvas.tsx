@@ -153,8 +153,8 @@ const Canvas = ({
 
             else if (activeTool.name == Strings.Tools.Select) {
                 if (elementAtCursor) {
-                    const diffX = cursorX - prevCursorX;
-                    const diffY = cursorY - prevCursorY;
+                    const diffX = trueX - prevTrueX;
+                    const diffY = trueY - prevTrueY;
                     elementAtCursor = dragElement(elementAtCursor, diffX, diffY);
                     let targetElementIndex = local_drawings
                         .findIndex(x => x.id == elementAtCursor?.id)
