@@ -21,12 +21,10 @@ let prevCursorY: number;
 
 let offsetX = 0;
 let offsetY = 0;
-const MAX_OFFSET_X = 1000;
-const MAX_OFFSET_Y = 1000;
 
 let scale = 1;
-const MAX_SCALE = 3;
-const MIN_SCALE = 0.5;
+const MAX_SCALE = 5;
+const MIN_SCALE = 0.1;
 
 let leftMouseDown = false;
 let middleMouseDown = false;
@@ -170,11 +168,7 @@ const Canvas = ({
             // pan the canvas
             const newOffsetX = offsetX + (trueX - prevTrueX);
             const newOffsetY = offsetY + (trueY - prevTrueY);
-            if (Math.abs(newOffsetX) <= MAX_OFFSET_X)
-                offsetX = newOffsetX;
-            if (Math.abs(newOffsetY) <= MAX_OFFSET_Y)
-                offsetY = newOffsetY;
-            //console.log(offsetX, offsetY)
+            changeOffset(newOffsetX, newOffsetY);
 
             redrawCanvas();
         }
@@ -196,6 +190,7 @@ const Canvas = ({
     }
 
     const handleMouseDown = (event: React.MouseEvent) => {
+        event.preventDefault();
         const canvas = canvasRef.current as HTMLCanvasElement;
 
         // left mouse button
@@ -276,7 +271,7 @@ const Canvas = ({
 
         if (!middleMouseDown && context) {
             const deltaY = event.deltaY;
-            const scaleAmount = -deltaY / 500;
+            const scaleAmount = -deltaY / 800;
             const newScale = scale * (1 + scaleAmount)
             if (newScale > MAX_SCALE || newScale < MIN_SCALE)
                 return
@@ -293,11 +288,19 @@ const Canvas = ({
             const unitsAddLeft = unitsZoomedX * distX;
             const unitsAddTop = unitsZoomedY * distY;
 
-            offsetX -= unitsAddLeft;
-            offsetY -= unitsAddTop;
-
+            let newOffsetX = offsetX - unitsAddLeft;
+            let newOffsetY = offsetY - unitsAddTop;
+            
+            changeOffset(newOffsetX, newOffsetY);
             redrawCanvas();
         }
+    }
+
+    const changeOffset = (newOffsetX: number, newOffsetY: number) => {
+        // if (Math.abs(newOffsetX) <= MAX_OFFSET_X)
+        offsetX = newOffsetX;
+        // if (Math.abs(newOffsetY) <= MAX_OFFSET_Y)
+        offsetY = newOffsetY;
     }
 
     useEffect(() => {

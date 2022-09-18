@@ -1,10 +1,20 @@
-.app-wrapper {
+/* .app-wrapper {
   position: relative;
-}
+  width: 100%;
+  height: 100%;
+} */
 
 .app-canvas {
   background-color: rgba(203, 203, 203, 0.813);
   position: absolute;
   left: 0px;
   top: 0px;
+}
+
+.map-canvas {
+  background-color: rgba(45, 45, 45, 0.164);
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  z-index: 10;
 }

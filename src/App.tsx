@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css"
 import Canvas from './components/canvas';
+import MapCanvas from "./components/mapCanvas";
 import ToolBox from './components/toolBox';
 
 const App = () => {
@@ -9,6 +10,7 @@ const App = () => {
       <ToolBox />
       <main>
         <Canvas />
+        {/* <MapCanvas /> */}
       </main>
     </div>
   );
