@@ -168,8 +168,8 @@ const Canvas = ({
 
         else if (middleMouseDown) {
             // pan the canvas
-            const newOffsetX = offsetX + (cursorX - prevCursorX);
-            const newOffsetY = offsetY + (cursorY - prevCursorY);
+            const newOffsetX = offsetX + (trueX - prevTrueX);
+            const newOffsetY = offsetY + (trueY - prevTrueY);
             if (Math.abs(newOffsetX) <= MAX_OFFSET_X)
                 offsetX = newOffsetX;
             if (Math.abs(newOffsetY) <= MAX_OFFSET_Y)
