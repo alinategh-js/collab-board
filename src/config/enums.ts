@@ -1,15 +1,18 @@
-import { Strings } from "../config/strings"
+import { Strings } from "../config/strings";
 import { Tool } from "./types";
 
 export const TOOLS = [
     {
         name: Strings.Tools.Select,
+        icon: "FaMousePointer"
     },
     {
         name: Strings.Tools.Pen,
+        icon: "FaPen"
     },
     {
-        name: Strings.Tools.Rectangle
+        name: Strings.Tools.Rectangle,
+        icon: "FaSquare"
     }
 ] as const;
 

@@ -1,16 +1,18 @@
 import React from "react";
 import "./App.css"
-import Canvas from './components/canvas';
+import Canvas from './components/canvas/canvas';
 import MapCanvas from "./components/mapCanvas";
-import ToolBox from './components/toolBox';
+import ToolBox from './components/toolbox/toolBox';
 
 const App = () => {
   return (
     <div className='app-wrapper'>
-      <ToolBox />
+      <div className="toolbox-wrapper">
+        <ToolBox />
+      </div>
       <main>
         <Canvas />
-        {/* <MapCanvas /> */}
+        <MapCanvas />
       </main>
     </div>
   );

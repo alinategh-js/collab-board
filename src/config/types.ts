@@ -1,6 +1,16 @@
 import { TOOLS } from './enums';
 import { Strings } from './strings';
 
+type RGB = `rgb(${number}, ${number}, ${number})`;
+type RGBA = `rgba(${number}, ${number}, ${number}, ${number})`;
+type HEX = `#${string}`;
+
+export type Color = RGB | RGBA | HEX | string;
+
+export interface IIndexable<T = any> { 
+    [key: string]: T 
+}
+
 export type Tool = {
     name: string
 }
@@ -23,7 +33,10 @@ export type Line = {
     x0: number,
     y0: number,
     x1: number,
-    y1: number
+    y1: number,
+    lineCap: 'butt' | 'round' | 'square',
+    lineWidth: number,
+    strokeStyle: Color
 }
 
 export type RectangleElement = _BaseElement & {

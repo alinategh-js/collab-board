@@ -1,20 +1,26 @@
-/* .app-wrapper {
+.app-wrapper {
   position: relative;
-  width: 100%;
-  height: 100%;
-} */
+  height: 100vh;
+}
 
 .app-canvas {
-  background-color: rgba(203, 203, 203, 0.813);
+  background-color: rgb(250, 250, 250);
   position: absolute;
   left: 0px;
   top: 0px;
 }
 
-.map-canvas {
+.toolbox-wrapper {
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+  padding-top: 5px;
+}
+
+/* .map-canvas {
   background-color: rgba(45, 45, 45, 0.164);
   position: absolute;
   bottom: 15px;
   right: 15px;
   z-index: 10;
-}
+} */

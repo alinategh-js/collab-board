@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import activeToolAtom from '../atoms/activeToolAtom';
-import drawingsAtom from '../atoms/drawingsAtom';
-import { MOUSEBUTTONS } from '../config/enums';
-import { toScreenX, toScreenY, toTrueX, toTrueY, trueHeight, trueWidth } from '../utils/canvas/canvasHelper';
-import { getFirstElementAtCursor } from '../utils/canvas/elementsHelper';
-import { isObjectEmptyOrNull } from '../utils/util';
-import { Element, PenElement, RectangleElement } from '../config/types';
-import { Strings } from '../config/strings';
-import { dragElement } from '../utils/canvas/dragHelper';
+import activeToolAtom from '../../atoms/activeToolAtom';
+import drawingsAtom from '../../atoms/drawingsAtom';
+import { MOUSEBUTTONS } from '../../config/enums';
+import { toScreenX, toScreenY, toTrueX, toTrueY, trueHeight, trueWidth } from '../../utils/canvas/canvasHelper';
+import { getFirstElementAtCursor } from '../../utils/canvas/elementsHelper';
+import { isObjectEmptyOrNull } from '../../utils/util';
+import { Element, PenElement, RectangleElement } from '../../config/types';
+import { Strings } from '../../config/strings';
+import { dragElement } from '../../utils/canvas/dragHelper';
 import { v4 as uuidv4, V4Options } from 'uuid';
 
 let local_drawings: Element[] = [];
