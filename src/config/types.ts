@@ -7,12 +7,13 @@ type HEX = `#${string}`;
 
 export type Color = RGB | RGBA | HEX | string;
 
-export interface IIndexable<T = any> { 
-    [key: string]: T 
+export interface IIndexable<T = any> {
+    [key: string]: T
 }
 
 export type Tool = {
-    name: string
+    name: string,
+    icon: string,
 }
 
 type _ExcludedTools = typeof Strings.Tools.Select;
@@ -22,6 +23,7 @@ type _ElementType = Exclude<typeof TOOLS[number]["name"], _ExcludedTools>;
 type _BaseElement = Readonly<{
     id: string,
     type: _ElementType,
+    properties: ToolProps
 }>;
 
 export type Point = {
@@ -34,9 +36,6 @@ export type Line = {
     y0: number,
     x1: number,
     y1: number,
-    lineCap: 'butt' | 'round' | 'square',
-    lineWidth: number,
-    strokeStyle: Color
 }
 
 export type RectangleElement = _BaseElement & {
@@ -53,3 +52,11 @@ export type PenElement = _BaseElement & {
 export type Element =
     RectangleElement |
     PenElement;
+
+// ======================================================================================
+
+export type ToolProps = {
+    lineCap: 'butt' | 'round' | 'square',
+    lineWidth: number,
+    strokeStyle: Color
+}

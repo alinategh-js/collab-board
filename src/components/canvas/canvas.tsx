@@ -10,6 +10,8 @@ import { Element, PenElement, RectangleElement } from '../../config/types';
 import { Strings } from '../../config/strings';
 import { dragElement } from '../../utils/canvas/dragHelper';
 import { v4 as uuidv4, V4Options } from 'uuid';
+import toolPropsAtom from '../../atoms/toolPropsAtom';
+import { drawLine, drawRectangle } from '../../utils/canvas/drawHelper';
 
 let local_drawings: Element[] = [];
 let current_drawing_object: Element | null;
@@ -41,6 +43,7 @@ const Canvas = ({
 
     const [context, setContext] = useState<CanvasRenderingContext2D | null>(null)
     const activeTool = useRecoilValue(activeToolAtom)
+    const toolProps = useRecoilValue(toolPropsAtom)
     const [drawings, setDrawings] = useRecoilState(drawingsAtom)
 
     const redrawCanvas = () => {
@@ -62,58 +65,24 @@ const Canvas = ({
                 for (let j = 0; j < element.points?.length - 1; j++) {
                     const currentPoint = element.points[j];
                     const nextPoint = element.points[j + 1];
-                    drawLine(toScreenX(currentPoint.x, offsetX, scale), toScreenY(currentPoint.y, offsetY, scale),
-                        toScreenX(nextPoint.x, offsetX, scale), toScreenY(nextPoint.y, offsetY, scale));
+                    drawLine(context, toScreenX(currentPoint.x, offsetX, scale), toScreenY(currentPoint.y, offsetY, scale),
+                        toScreenX(nextPoint.x, offsetX, scale), toScreenY(nextPoint.y, offsetY, scale),
+                        element.properties, scale);
                 }
             }
             if (element.type == Strings.Tools.Rectangle) {
                 element = element as RectangleElement;
-                drawRectangle(toScreenX(element.startPoint.x, offsetX, scale), toScreenY(element.startPoint.y, offsetY, scale),
-                    toScreenX(element.endPoint.x, offsetX, scale), toScreenY(element.endPoint.y, offsetY, scale));
+                drawRectangle(context, toScreenX(element.startPoint.x, offsetX, scale), toScreenY(element.startPoint.y, offsetY, scale),
+                    toScreenX(element.endPoint.x, offsetX, scale), toScreenY(element.endPoint.y, offsetY, scale),
+                    element.properties, scale);
             }
         }
     }
 
-    const drawLine = (
-        x0: number,
-        y0: number,
-        x1: number,
-        y1: number
-    ) => {
-        if (!context)
-            return;
-
-        context.beginPath();
-        context.moveTo(x0, y0);
-        context.lineCap = 'round';
-        context.lineTo(x1, y1);
-        context.strokeStyle = '#000';
-        context.lineWidth = 2;
-        context.stroke();
-    }
-
-    const drawRectangle = (
-        x0: number,
-        y0: number,
-        x1: number,
-        y1: number
-    ) => {
-        if (!context)
-            return;
-
-        context.beginPath();
-        context.moveTo(x0, y0);
-        context.lineCap = 'round';
-
-        const width = x1 - x0;
-        const height = y1 - y0;
-        context.rect(x0, y0, width, height)
-        context.strokeStyle = '#000';
-        context.lineWidth = 2;
-        context.stroke();
-    }
-
     const handleMouseMove = (event: React.MouseEvent) => {
+        if (!context)
+            return;
+
         event.preventDefault();
         cursorX = event.pageX
         cursorY = event.pageY
@@ -131,7 +100,7 @@ const Canvas = ({
                     y: trueY
                 })
                 // draw a line
-                drawLine(prevCursorX, prevCursorY, cursorX, cursorY);
+                drawLine(context, prevCursorX, prevCursorY, cursorX, cursorY, toolProps, scale);
             }
 
             else if (activeTool.name == Strings.Tools.Rectangle) {
@@ -145,8 +114,8 @@ const Canvas = ({
                 // render new rectangle
                 const screenStartX = toScreenX(current_drawing_object?.startPoint?.x, offsetX, scale);
                 const screenStartY = toScreenY(current_drawing_object?.startPoint?.y, offsetY, scale);
-                drawRectangle(screenStartX, screenStartY,
-                    cursorX, cursorY);
+                drawRectangle(context, screenStartX, screenStartY,
+                    cursorX, cursorY, toolProps, scale);
             }
 
             else if (activeTool.name == Strings.Tools.Select) {
@@ -205,7 +174,8 @@ const Canvas = ({
                 current_drawing_object = {
                     id: uuidv4(),
                     type: Strings.Tools.Pen,
-                    points: []
+                    points: [],
+                    properties: toolProps
                 }
             }
 
@@ -222,7 +192,8 @@ const Canvas = ({
                     id: uuidv4(),
                     type: Strings.Tools.Rectangle,
                     startPoint: { x: trueX, y: trueY },
-                    endPoint: { x: trueX, y: trueY }
+                    endPoint: { x: trueX, y: trueY },
+                    properties: toolProps
                 }
             }
         }
